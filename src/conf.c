@@ -210,19 +210,20 @@ int conf_cmdline(struct arlg_conf *conf, int argc, const char **argv)
 	int r = ffcmdarg_parse_object(arlg_cmd_args, conf, argv, argc, 0, &errmsg);
 	if (r < 0) {
 		if (r == -R_DONE)
-			return -1;
+			goto err;
 		else if (r == -R_BADVAL)
 			ffstderr_fmt("command line: bad value\n");
 		else
 			ffstderr_fmt("command line: %S\n", &errmsg);
-		return -1;
+		goto err;
 	}
 
 	if (0 != conf_check(conf))
-		return -1;
+		goto err;
 
 	rc = 0;
 
-end:
+err:
+	ffstr_free(&errmsg);
 	return rc;
 }

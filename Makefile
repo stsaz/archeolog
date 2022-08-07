@@ -13,12 +13,14 @@ ifeq "$(OS)" "windows"
 endif
 
 CFLAGS := -I$(ARLG_DIR)/src -I$(FFOS_DIR) -I$(FFBASE_DIR) \
-	-DFFBASE_HAVE_FFERR_STR \
-	-msse4.2
+	-DFFBASE_HAVE_FFERR_STR
 ifeq "$(OPT)" "0"
 	CFLAGS += -g -O0 -DFF_DEBUG
 else
 	CFLAGS += -O3 -s
+endif
+ifneq "$(OLD_CPU)" "1"
+	CFLAGS += -march=nehalem
 endif
 
 # build, install
@@ -31,12 +33,13 @@ build-package: default
 
 %.o: $(ARLG_DIR)/src/%.c \
 		$(wildcard $(ARLG_DIR)/src/*.h) \
-		$(wildcard $(ARLG_DIR)/src/util/*.h)
+		$(wildcard $(ARLG_DIR)/src/util/*.h) \
+		$(ARLG_DIR)/Makefile
 	$(C) $(CFLAGS) $< -o $@
 $(BIN): main.o conf.o
 	$(LINK) $+ $(LINKFLAGS) -o $@
 
-test: test-stream.o
+test: test.o
 	$(LINK) $+ $(LINKFLAGS) -o $@
 
 
